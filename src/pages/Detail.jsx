@@ -47,13 +47,28 @@ const Detail = () => {
     setTimeout(() => setClickedBtn(null), 300);
   };
 
+  // --- FUNGSI SHARE AYAT ---
+  const handleShare = (a) => {
+    const text = `"${a.teksIndonesia}"\n\n(QS. ${detailSurah.namaLatin}: Ayat ${a.nomorAyat})\n\nBaca & Tadabburi di: ${window.location.origin}/surah/${detailSurah.nomor}`;
+    
+    if (navigator.share) {
+      navigator.share({
+        title: `Tadabbur - ${detailSurah.namaLatin}`,
+        text: text,
+        url: window.location.href,
+      }).catch((err) => console.log(err));
+    } else {
+      navigator.clipboard.writeText(text);
+      alert("Ayat berhasil disalin!");
+    }
+    triggerAnim('share', a.nomorAyat);
+  };
+
   return (
     <div className={`min-h-screen pb-44 transition-all duration-500 ${darkMode ? "dark bg-slate-950 text-white" : "bg-slate-50 text-slate-900"}`}>
       
-      {/* --- FIXED TOP NAV --- */}
       <nav className="fixed top-0 w-full bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl z-[60] py-3 px-4 border-b dark:border-white/5 shadow-sm">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
-          
           <Link to="/" className="p-2 bg-slate-100 dark:bg-slate-800 rounded-xl active:scale-90 transition-all">
             <svg className="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M15 19l-7-7 7-7" /></svg>
           </Link>
@@ -89,12 +104,15 @@ const Detail = () => {
                   </span>
                   
                   <div className="flex gap-1 md:gap-2">
-                    {/* Play Audio Ayat */}
+                    {/* Share Ayat */}
+                    <button onClick={() => handleShare(a)} className={`p-2.5 rounded-xl transition-all ${clickedBtn === `share-${a.nomorAyat}` ? 'scale-125 text-blue-500' : 'text-slate-400 hover:text-emerald-500'}`}>
+                      <svg className="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6L15.316 7.342m0 0a3 3 0 110 5.316m0-5.316a3 3 0 110-5.316m0 5.316l-6.632 3.316" /></svg>
+                    </button>
+
                     <button onClick={() => { new Audio(a.audio[selectedQari]).play(); triggerAnim('play', a.nomorAyat); }} className={`p-2.5 rounded-xl transition-all ${clickedBtn === `play-${a.nomorAyat}` ? 'scale-125 text-emerald-500' : 'text-slate-400'}`}>
                       <svg className="w-5 h-5 md:w-6 md:h-6" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" /></svg>
                     </button>
 
-                    {/* Bookmark - UPDATE: Kirim Data Lengkap Buat Home */}
                     <button 
                       onClick={() => { 
                         dispatch(addBookmark({
@@ -111,7 +129,6 @@ const Detail = () => {
                       <svg className="w-5 h-5 md:w-6 md:h-6" fill={isBookmarked ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" /></svg>
                     </button>
 
-                    {/* Last Read */}
                     <button 
                       onClick={() => { dispatch(setLastRead({surahNomor: detailSurah.nomor, surahName: detailSurah.namaLatin, ayatNomor: a.nomorAyat})); triggerAnim('read', a.nomorAyat); }} 
                       className={`p-2.5 rounded-xl transition-all ${isLastRead ? 'text-orange-500 scale-110' : 'text-slate-300'}`}
@@ -137,10 +154,8 @@ const Detail = () => {
         </div>
       </div>
 
-      {/* --- FIXED BOTTOM BAR PLAYER --- */}
       <div className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[92%] max-w-2xl z-[70]">
         <div className="bg-slate-900/95 backdrop-blur-2xl p-4 rounded-[3rem] shadow-2xl border border-white/10 flex items-center justify-between">
-          
           <button onClick={() => setShowQariModal(!showQariModal)} className="flex items-center gap-3 bg-white/10 p-2 pr-4 rounded-full active:scale-95 transition-all">
             <div className="w-10 h-10 bg-emerald-500 rounded-full flex items-center justify-center text-white">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
